@@ -3,9 +3,13 @@ Automated Pytest Test Suite for Glomerulonephritis Classifier Agent.
 Domain: Nephrology & Dialysis Systems
 Standard: KDIGO / KDOQI Clinical Practice Guidelines
 """
+import os
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Set audit secret key before importing agents
+os.environ.setdefault("AUDIT_SECRET_KEY", "test-audit-secret-key-2026-secure")
 
 import pytest
 from agents.base import PHIGuard, AuditLogger, SecurityException
@@ -63,3 +67,40 @@ def test_supervisor_consensus_and_audit():
     assert main(["audit", "--task-id", "CLI-TEST-01"]) == 0
     assert main(["chat", "Explain", "specifications"]) == 0
     assert main(["verify-audit"]) == 0
+
+
+def test_input_validation_rejects_invalid_metrics():
+    """Ensure payload validation rejects dangerous metric values."""
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="T1", target_identifier="K1", primary_metric=float('inf'))
+
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="T1", target_identifier="K1", primary_metric=float('nan'))
+
+
+def test_input_validation_rejects_empty_strings():
+    """Ensure payload validation rejects empty identifiers."""
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="", target_identifier="K1", primary_metric=10.0)
+
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="T1", target_identifier="", primary_metric=10.0)
+
+
+def test_audit_secret_key_required():
+    """Ensure AuditTrail requires a secret key and rejects short keys."""
+    from agents.base import AuditTrail
+    import os
+
+    # Save and clear env var
+    original = os.environ.pop("AUDIT_SECRET_KEY", None)
+    try:
+        with pytest.raises(SecurityException):
+            AuditTrail()
+
+        with pytest.raises(SecurityException):
+            AuditTrail(secret_key="short")
+    finally:
+        # Restore env var
+        if original:
+            os.environ["AUDIT_SECRET_KEY"] = original

@@ -82,16 +82,28 @@ python cli.py --task-id <value> --target <value> --primary <value> --secondary <
 
 ## 🧪 Testing & Verification
 
-Run the automated test suite:
+### Prerequisites
+
+Set the required environment variable for the HMAC-SHA256 audit trail:
+
+```bash
+# Linux/macOS
+export AUDIT_SECRET_KEY="your-secure-audit-key-min-16-chars"
+
+# Windows
+set AUDIT_SECRET_KEY=your-secure-audit-key-min-16-chars
+```
+
+### Run Tests
 
 ```bash
 pytest -v
 ```
 
-Execute high-throughput batch simulation benchmarks:
+### Run Simulation
 
 ```bash
-python simulator.py --tasks 1000 --concurrency 8
+python simulator.py 1000
 ```
 
 ---
@@ -100,5 +112,14 @@ python simulator.py --tasks 1000 --concurrency 8
 
 ```bash
 docker build -t glomerulonephritis-classifier-agent .
-docker run -p 8000:8000 glomerulonephritis-classifier-agent
+docker run -e AUDIT_SECRET_KEY="your-secure-audit-key" -p 8000:8000 glomerulonephritis-classifier-agent
 ```
+
+---
+
+## 🔒 Security Configuration
+
+| Environment Variable | Required | Description |
+|:---------------------|:---------|:------------|
+| `AUDIT_SECRET_KEY` | Yes | HMAC-SHA256 audit signing key (min 16 chars) |
+| `MODEL_PROVIDER` | No | LLM provider: `mock` (default), `ollama`, `claude`, `openai` |
