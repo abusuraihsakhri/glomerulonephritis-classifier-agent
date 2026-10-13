@@ -211,6 +211,16 @@ def create_app():
         return None
 
 
+def parse_csv_bool(value):
+    """Parse boolean fields explicitly instead of treating 'False' as True."""
+    normalized = str(value).strip().lower()
+    if normalized in ("true", "1", "yes", "y"):
+        return True
+    if normalized in ("false", "0", "no", "n", ""):
+        return False
+    raise ValueError(f"Invalid CSV boolean value: {value!r}")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="glomerulonephritis-classifier-agent", description="GlomeruloMind: Renal Biopsy & Serology Glomerulonephritis Diagnostic Arbiter")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -274,7 +284,9 @@ def main(argv=None):
         out_fields = fieldnames + ["overall_status", "total_alerts", "critical_count", "consensus_summary"]
         out_rows = []
         for r in rows:
-            dossier = coordinator.audit_case(dict(r))
+            normalized = dict(r)
+            normalized["critical_flag"] = parse_csv_bool(r.get("critical_flag", False))
+            dossier = coordinator.audit_case(normalized)
             row_dict = dict(r)
             row_dict["overall_status"] = dossier["overall_status"]
             row_dict["total_alerts"] = dossier["total_alerts"]

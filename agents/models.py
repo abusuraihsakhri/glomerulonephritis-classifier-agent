@@ -37,7 +37,10 @@ class SystemTaskPayload(BaseModel):
         """Prevent injection via control characters in string fields."""
         if any(ord(c) < 32 and c not in "\t\n\r" for c in v):
             raise ValueError("Field contains invalid control characters")
-        return v.strip()
+        cleaned = v.strip()
+        if not cleaned:
+            raise ValueError("Identifier or descriptor must not be blank")
+        return cleaned
 
     @field_validator("primary_metric", "secondary_metric")
     @classmethod

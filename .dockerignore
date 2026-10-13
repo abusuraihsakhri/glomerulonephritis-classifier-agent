@@ -1,0 +1,31 @@
+# Exclude repository history and developer files from image layers
+.git
+.github
+.venv
+venv
+env
+__pycache__
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.egg-info
+build
+dist
+
+# Do not include credentials or local outputs in Docker build context
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.log
+results.csv
+output.csv
+
+# Runtime does not require tests or browser smoke fixtures
+tests
+test_glomerulo_mind.py
+web/smoke.test.cjs
