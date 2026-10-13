@@ -33,5 +33,11 @@ dev = [
 glomerulonephritis-classifier-engine = "glomerulonephritis_classifier_agent.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/abusuraihsakhri/glomerulonephritis-classifier-engine"
-Repository = "https://github.com/abusuraihsakhri/glomerulonephritis-classifier-engine.git"
+Homepage = "https://github.com/abusuraihsakhri/glomerulonephritis-classifier-agent"
+Repository = "https://github.com/abusuraihsakhri/glomerulonephritis-classifier-agent"
+
+[tool.setuptools]
+py-modules = ["cli", "enrichment", "glomerulo_mind", "glomerulo_mind_app", "glomerulonephritis_classifier_agent_app", "simulator"]
+
+[tool.setuptools.packages.find]
+include = ["agents*", "glomerulonephritis_classifier_agent*"]
